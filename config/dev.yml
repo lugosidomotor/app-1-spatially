@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-1-spatially-service
+spec:
+  selector:
+    app: app-1-spatially
+  ports:
+    - protocol: "TCP"
+      port: 8080
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-1-spatially
+spec:
+  selector:
+    matchLabels:
+      app: app-1-spatially
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: app-1-spatially
+    spec:
+      containers:
+        - name: app-1-spatially
+          image: ldomotor/app1spatially:246fb52
+          ports:
+            - containerPort: 8080
