@@ -12,8 +12,7 @@ on:
         - prod
 jobs:        
   Docker-build-and-push:
-    runs-on: self-hosted
-    needs: Run-unit-tests
+    runs-on: ubuntu
 
     steps:
     - name: Check Out Repo
