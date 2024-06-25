@@ -7,7 +7,7 @@ RUN adduser -D $USER
 USER $USER
 
 WORKDIR /app/
-COPY /helloapp/app.py app.py
+COPY /helloapp .
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
