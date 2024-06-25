@@ -10,9 +10,10 @@ on:
         - dev
         - qa
         - prod
-jobs:        
-  Docker-build-and-push:
-    runs-on: ubuntu
+
+jobs:
+  docker-build-and-push:
+    runs-on: ubuntu-latest
 
     steps:
     - name: Check Out Repo
@@ -42,15 +43,16 @@ jobs:
         DOCKER_USERNAME: "${{ secrets.DOCKER_USERNAME }}"
         NEW_VERSION: '${{ secrets.DOCKER_USERNAME }}\/${{ secrets.DOCKER_REPO }}:${{ steps.vars.outputs.sha_short }}'
       run: |
-       cd config
-       sed -i 's/'$DOCKER_USERNAME'.*/'$NEW_VERSION'/g' ${{ github.event.inputs.choice }}.yml
+        cd config
+        sed -i 's/'$DOCKER_USERNAME'.*/'$NEW_VERSION'/g' ${{ github.event.inputs.choice }}.yml
         
     - name: Commit files
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git commit -am "Bump docker tag"
+        
     - name: Push changes
-      uses: ad-m/github-push-action@master
+      uses: ad-m/github-push-action@v0.6.0
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
