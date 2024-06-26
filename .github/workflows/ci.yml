@@ -12,7 +12,7 @@ on:
         - prod
         default: dev
         
-  push:
+  pull_request::
     branches:
     - main
 
