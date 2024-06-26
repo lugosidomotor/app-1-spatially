@@ -37,7 +37,7 @@ jobs:
     - name: Determine environment file
       id: determine_env_file
       run: |
-        if [ "${{ github.event_name }}" = "push" ]; then
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
           echo "env_file=dev.yml" >> $GITHUB_ENV
         else
           echo "env_file=${{ github.event.inputs.choice }}.yml" >> $GITHUB_ENV
