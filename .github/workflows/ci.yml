@@ -35,8 +35,13 @@ jobs:
       run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
       
     - name: Determine environment file
-      id: env_file
-      run: echo "::set-output name=env_file::${{ github.event_name == 'push' && 'dev.yml' || github.event.inputs.choice + '.yml' }}"
+      id: determine_env_file
+      run: |
+        if [ "${{ github.event_name }}" = "push" ]; then
+          echo "env_file=dev.yml" >> $GITHUB_ENV
+        else
+          echo "env_file=${{ github.event.inputs.choice }}.yml" >> $GITHUB_ENV
+        fi
 
     - name: Build and push
       id: docker_build
@@ -53,7 +58,7 @@ jobs:
         NEW_VERSION: '${{ secrets.DOCKER_USERNAME }}\/${{ secrets.DOCKER_REPO }}:${{ steps.vars.outputs.sha_short }}'
       run: |
         cd config
-        sed -i 's/'$DOCKER_USERNAME'.*/'$NEW_VERSION'/g' ${{ steps.env_file.outputs.env_file }}
+        sed -i 's/'$DOCKER_USERNAME'.*/'$NEW_VERSION'/g' ${{ env.env_file }}
         
     - name: Commit files
       run: |
