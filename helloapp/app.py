@@ -65,7 +65,7 @@ def write_to_db(connection_string, data):
 
 def initialize_database():
     try:
-        encoded_vault_address = get_kubernetes_secret("keyvault-address", "vault-address")
+        encoded_vault_address = get_kubernetes_secret("keyvault-address", "address")
         print(f"Encoded vault address: {encoded_vault_address}")
         vault_address = decode_base64_twice(encoded_vault_address)
         print(f"Decoded vault address: {vault_address}")
