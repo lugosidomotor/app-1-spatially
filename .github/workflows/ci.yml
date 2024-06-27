@@ -38,9 +38,9 @@ jobs:
       id: determine_env_file
       run: |
         if [ "${{ github.event_name }}" = "push" ]; then
-          echo "env_file=dev.yml" >> $GITHUB_ENV
+          echo "env_file=./dev/dev.yml" >> $GITHUB_ENV
         else
-          echo "env_file=${{ github.event.inputs.choice }}.yml" >> $GITHUB_ENV
+          echo "env_file=./${{ github.event.inputs.choice }}/${{ github.event.inputs.choice }}.yml" >> $GITHUB_ENV
         fi
 
     - name: Build and push
@@ -57,7 +57,7 @@ jobs:
         DOCKER_USERNAME: "${{ secrets.DOCKER_USERNAME }}"
         NEW_VERSION: '${{ secrets.DOCKER_USERNAME }}\/${{ secrets.DOCKER_REPO }}:${{ steps.vars.outputs.sha_short }}'
       run: |
-        cd config/${{ github.event.inputs.choice }}
+        cd config
         sed -i 's/'$DOCKER_USERNAME'.*/'$NEW_VERSION'/g' ${{ env.env_file }}
         
     - name: Commit files
