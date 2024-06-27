@@ -4,25 +4,42 @@ import base64
 import requests
 import psycopg2
 from kubernetes import client, config
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 
 app = Flask(__name__)
 
 def get_kubernetes_secret(secret_name, key_name, namespace='default'):
     config.load_incluster_config()
     v1 = client.CoreV1Api()
-    secret = v1.read_namespaced_secret(secret_name, namespace)
-    return secret.data[key_name]
+    try:
+        secret = v1.read_namespaced_secret(secret_name, namespace)
+        if key_name in secret.data:
+            return secret.data[key_name]
+        else:
+            raise KeyError(f"Key '{key_name}' not found in secret '{secret_name}'")
+    except Exception as e:
+        print(f"Error accessing secret {secret_name}: {e}")
+        raise
 
 def decode_base64_twice(encoded_value):
-    first_decode = base64.b64decode(encoded_value)
-    second_decode = base64.b64decode(first_decode)
-    return second_decode.decode('utf-8')
+    try:
+        first_decode = base64.b64decode(encoded_value)
+        second_decode = base64.b64decode(first_decode)
+        return second_decode.decode('utf-8')
+    except Exception as e:
+        print(f"Error decoding base64 value: {e}")
+        raise
 
 def get_keyvault_secret(vault_address, secret_name):
-    # This function should include authentication details to access the key vault
-    # Assuming it's an HTTP GET request for the example
-    response = requests.get(f"{vault_address}/secrets/{secret_name}")
-    return response.json()['value']
+    try:
+        credential = DefaultAzureCredential()
+        client = SecretClient(vault_url=vault_address, credential=credential)
+        secret = client.get_secret(secret_name)
+        return secret.value
+    except Exception as e:
+        print(f"Error accessing key vault: {e}")
+        raise
 
 def create_table_if_not_exists(connection_string):
     conn = psycopg2.connect(connection_string)
@@ -49,8 +66,11 @@ def write_to_db(connection_string, data):
 def initialize_database():
     try:
         encoded_vault_address = get_kubernetes_secret("keyvault-address", "vault-address")
+        print(f"Encoded vault address: {encoded_vault_address}")
         vault_address = decode_base64_twice(encoded_vault_address)
+        print(f"Decoded vault address: {vault_address}")
         postgres_connection_string = get_keyvault_secret(vault_address, "postgres-connection-string")
+        print(f"Postgres connection string: {postgres_connection_string}")
         with open("data.txt", "r") as file:
             content = file.read()
         write_to_db(postgres_connection_string, content)
@@ -71,4 +91,3 @@ def hello_world():
 if __name__ == "__main__":
     initialize_database()
     app.run(host='0.0.0.0', port=8080, debug=True)
-
