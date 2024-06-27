@@ -1,4 +1,4 @@
 Flask==3.0.3
-kubernetes==18.20.0
-psycopg2-binary==2.9.1
-requests==2.25.1
+kubernetes
+psycopg2-binary
+requests
