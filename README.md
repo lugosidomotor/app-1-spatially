@@ -1,4 +1,4 @@
-# 💻 🔗 Related Repos
+# 🔗 Related Repos
 https://github.com/lugosidomotor/infra-spatially
 
 https://github.com/lugosidomotor/app-2-spatially
