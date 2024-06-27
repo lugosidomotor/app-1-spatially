@@ -11,5 +11,5 @@ COPY /helloapp .
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-ENTRYPOINT [ "python" ]
+ENTRYPOINT [ "python3" ]
 CMD ["app.py"]
