@@ -20,7 +20,7 @@ spec:
   selector:
     matchLabels:
       app: app-1-spatially
-  replicas: 4
+  replicas: 1
   template:
     metadata:
       labels:
