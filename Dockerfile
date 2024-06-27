@@ -11,13 +11,26 @@ COPY /helloapp .
 COPY requirements.txt requirements.txt
 #RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir Flask && \
-    pip install --no-cache-dir kubernetes && \
-    pip install --no-cache-dir psycopg2-binary && \
-    pip install --no-cache-dir requests && \
-    pip install --no-cache-dir azure-identity && \
-    pip install --no-cache-dir azure-keyvault-secrets
+# Upgrade pip
+RUN pip install --upgrade pip
+
+# Install Flask
+RUN pip install --no-cache-dir Flask
+
+# Install kubernetes
+RUN pip install --no-cache-dir kubernetes
+
+# Install psycopg2-binary
+RUN pip install --no-cache-dir psycopg2-binary
+
+# Install requests
+RUN pip install --no-cache-dir requests
+
+# Install azure-identity
+RUN pip install --no-cache-dir azure-identity
+
+# Install azure-keyvault-secrets
+RUN pip install --no-cache-dir azure-keyvault-secrets
 
 ENTRYPOINT [ "python3" ]
 CMD ["app.py"]
