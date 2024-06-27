@@ -57,7 +57,7 @@ jobs:
         DOCKER_USERNAME: "${{ secrets.DOCKER_USERNAME }}"
         NEW_VERSION: '${{ secrets.DOCKER_USERNAME }}\/${{ secrets.DOCKER_REPO }}:${{ steps.vars.outputs.sha_short }}'
       run: |
-        cd config
+        cd config/${{ github.event.inputs.choice }}
         sed -i 's/'$DOCKER_USERNAME'.*/'$NEW_VERSION'/g' ${{ env.env_file }}
         
     - name: Commit files
