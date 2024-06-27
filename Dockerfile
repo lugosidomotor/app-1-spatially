@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.8-slim-buster
+FROM --platform=linux/amd64 python:3.8-alpine
 
 LABEL maintainer="Umpa Lumpa <dik@duk.com>"
 
