@@ -1,4 +1,6 @@
-# app-1-spatially
+# 💻 🔗
+
+# 💻 app-1-spatially
 
 ## Overview
 
@@ -19,7 +21,7 @@ This project is a Flask-based web application that reads data from a file, write
 11. Start Flask web server
 12. Display data on webpage
 
-# Continuous Integration (CI) Workflow
+# 🔄 Continuous Integration (CI) Workflow
 
 This README describes the CI workflow defined in the GitHub Actions YAML file.
 
