@@ -1,16 +1,12 @@
-FROM --platform=linux/amd64 python:3.9-alpine
+FROM python:3.11-slim
+ENV PORT 8000
+EXPOSE 8000
+WORKDIR /usr/src/app
 
-LABEL maintainer="Umpa Lumpa <dik@duk.com>"
-
-ENV USER=serviceuser
-RUN adduser -D $USER
-USER $USER
-
-WORKDIR /app/
-COPY /helloapp .
-COPY requirements.txt requirements.txt
-
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-ENTRYPOINT [ "python3" ]
+COPY . .
+
+ENTRYPOINT ["python"]
 CMD ["app.py"]

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: teszt
+  namespace: teszt
+  labels:
+    kubernetes.azure.com/generator: devhub
+spec:
+  type: LoadBalancer
+  selector:
+    app: teszt
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
