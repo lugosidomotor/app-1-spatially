@@ -1,6 +1,5 @@
 Flask==3.0.3
 logging
-time
 kubernetes
 psycopg2-binary
 requests
