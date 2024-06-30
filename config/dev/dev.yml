@@ -28,6 +28,6 @@ spec:
     spec:
       containers:
         - name: app-1-spatially
-          image: ldomotor/app1spatially:d80254d
+          image: ldomotor/app1spatially:6cc0b07
           ports:
             - containerPort: 8080
