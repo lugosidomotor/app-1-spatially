@@ -1,3 +1,4 @@
+import logging
 from flask import Flask
 import os
 import time
@@ -10,6 +11,11 @@ from azure.keyvault.secrets import SecretClient
 
 app = Flask(__name__)
 
+# Configure logging
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)s: %(message)s',
+                    handlers=[logging.StreamHandler()])
+
 def get_kubernetes_secret(secret_name, key_name, namespace='default'):
     config.load_incluster_config()
     v1 = client.CoreV1Api()
@@ -20,7 +26,7 @@ def get_kubernetes_secret(secret_name, key_name, namespace='default'):
         else:
             raise KeyError(f"Key '{key_name}' not found in secret '{secret_name}'")
     except Exception as e:
-        print(f"Error accessing secret {secret_name}: {e}")
+        app.logger.error(f"Error accessing secret {secret_name}: {e}")
         raise
 
 def decode_base64_twice(encoded_value):
@@ -29,7 +35,7 @@ def decode_base64_twice(encoded_value):
         second_decode = base64.b64decode(first_decode)
         return second_decode.decode('utf-8')
     except Exception as e:
-        print(f"Error decoding base64 value: {e}")
+        app.logger.error(f"Error decoding base64 value: {e}")
         raise
 
 def get_keyvault_secret(vault_address, secret_name):
@@ -39,57 +45,67 @@ def get_keyvault_secret(vault_address, secret_name):
         secret = client.get_secret(secret_name)
         return secret.value
     except Exception as e:
-        print(f"Error accessing key vault: {e}")
+        app.logger.error(f"Error accessing key vault: {e}")
         raise
 
 def create_table_if_not_exists(connection_string):
     conn = psycopg2.connect(connection_string)
     cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS app_data (
-            id SERIAL PRIMARY KEY,
-            content TEXT NOT NULL
-        )
-    """)
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS app_data (
+                id SERIAL PRIMARY KEY,
+                content TEXT NOT NULL
+            )
+        """)
+        conn.commit()
+    except Exception as e:
+        app.logger.error(f"Error creating table: {e}")
+        raise
+    finally:
+        cur.close()
+        conn.close()
 
 def write_to_db(connection_string, data):
     conn = psycopg2.connect(connection_string)
     cur = conn.cursor()
-    create_table_if_not_exists(connection_string)
-    cur.execute("INSERT INTO app_data (content) VALUES (%s)", (data,))
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        create_table_if_not_exists(connection_string)
+        cur.execute("INSERT INTO app_data (content) VALUES (%s)", (data,))
+        conn.commit()
+    except Exception as e:
+        app.logger.error(f"Error writing to database: {e}")
+        raise
+    finally:
+        cur.close()
+        conn.close()
 
 def initialize_database():
     retries = 5
-    delay = 100  # seconds
+    delay = 10  # seconds
     attempt = 0
 
     while attempt < retries:
         try:
             encoded_vault_address = get_kubernetes_secret("keyvault-address", "address")
-            print(f"Encoded vault address: {encoded_vault_address}")
+            app.logger.debug(f"Encoded vault address: {encoded_vault_address}")
             vault_address = decode_base64_twice(encoded_vault_address)
-            print(f"Decoded vault address: {vault_address}")
+            app.logger.debug(f"Decoded vault address: {vault_address}")
             postgres_connection_string = get_keyvault_secret(vault_address, "postgres-connection-string")
-            print(f"Postgres connection string: {postgres_connection_string}")
+            app.logger.debug(f"Postgres connection string: {postgres_connection_string}")
             with open("data.txt", "r") as file:
                 content = file.read()
             write_to_db(postgres_connection_string, content)
-            print("Data written to database successfully.")
+            app.logger.info("Data written to database successfully.")
             break
         except Exception as e:
-            print(f"Error: {str(e)}")
+            app.logger.error(f"Error: {str(e)}")
             attempt += 1
             if attempt < retries:
-                print(f"Retrying in {delay} seconds... (Attempt {attempt + 1}/{retries})")
+                app.logger.info(f"Retrying in {delay} seconds... (Attempt {attempt + 1}/{retries})")
                 time.sleep(delay)
             else:
-                print("All retry attempts failed.")
+                app.logger.critical("All retry attempts failed.")
 
 @app.route("/")
 def hello_world():
@@ -97,6 +113,7 @@ def hello_world():
         with open("data.txt", "r") as file:
             content = file.read()
     except FileNotFoundError:
+        app.logger.warning("Data file not found.")
         content = "Data file not found."
 
     return f"<h1>app-1-spatially</h1><p>{content}</p>"
