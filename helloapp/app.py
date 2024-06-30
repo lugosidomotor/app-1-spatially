@@ -26,7 +26,7 @@ def get_kubernetes_secret(secret_name, key_name, namespace='default'):
         else:
             raise KeyError(f"Key '{key_name}' not found in secret '{secret_name}'")
     except Exception as e:
-        app.logger.error(f"Error accessing secret {secret_name}: {e}")
+        app.logger.error(f"Error accessing secret {secret_name}: {e}", exc_info=True)
         raise
 
 def decode_base64_twice(encoded_value):
@@ -35,7 +35,7 @@ def decode_base64_twice(encoded_value):
         second_decode = base64.b64decode(first_decode)
         return second_decode.decode('utf-8')
     except Exception as e:
-        app.logger.error(f"Error decoding base64 value: {e}")
+        app.logger.error(f"Error decoding base64 value: {e}", exc_info=True)
         raise
 
 def get_keyvault_secret(vault_address, secret_name):
@@ -45,7 +45,7 @@ def get_keyvault_secret(vault_address, secret_name):
         secret = client.get_secret(secret_name)
         return secret.value
     except Exception as e:
-        app.logger.error(f"Error accessing key vault: {e}")
+        app.logger.error(f"Error accessing key vault: {e}", exc_info=True)
         raise
 
 def create_table_if_not_exists(connection_string):
@@ -60,7 +60,7 @@ def create_table_if_not_exists(connection_string):
         """)
         conn.commit()
     except Exception as e:
-        app.logger.error(f"Error creating table: {e}")
+        app.logger.error(f"Error creating table: {e}", exc_info=True)
         raise
     finally:
         cur.close()
@@ -74,7 +74,7 @@ def write_to_db(connection_string, data):
         cur.execute("INSERT INTO app_data (content) VALUES (%s)", (data,))
         conn.commit()
     except Exception as e:
-        app.logger.error(f"Error writing to database: {e}")
+        app.logger.error(f"Error writing to database: {e}", exc_info=True)
         raise
     finally:
         cur.close()
@@ -99,7 +99,7 @@ def initialize_database():
             app.logger.info("Data written to database successfully.")
             break
         except Exception as e:
-            app.logger.error(f"Error: {str(e)}")
+            app.logger.error(f"Error: {str(e)}", exc_info=True)
             attempt += 1
             if attempt < retries:
                 app.logger.info(f"Retrying in {delay} seconds... (Attempt {attempt + 1}/{retries})")
@@ -119,5 +119,6 @@ def hello_world():
     return f"<h1>app-1-spatially</h1><p>{content}</p>"
 
 if __name__ == "__main__":
+    app.logger.info("Starting application with environment variables: %s", os.environ)
     initialize_database()
     app.run(host='0.0.0.0', port=8080, debug=True)
