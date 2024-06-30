@@ -64,19 +64,31 @@ def write_to_db(connection_string, data):
     conn.close()
 
 def initialize_database():
-    try:
-        encoded_vault_address = get_kubernetes_secret("keyvault-address", "address")
-        print(f"Encoded vault address: {encoded_vault_address}")
-        vault_address = decode_base64_twice(encoded_vault_address)
-        print(f"Decoded vault address: {vault_address}")
-        postgres_connection_string = get_keyvault_secret(vault_address, "postgres-connection-string")
-        print(f"Postgres connection string: {postgres_connection_string}")
-        with open("data.txt", "r") as file:
-            content = file.read()
-        write_to_db(postgres_connection_string, content)
-        print("Data written to database successfully.")
-    except Exception as e:
-        print(f"Error: {str(e)}")
+    retries = 5
+    delay = 100  # seconds
+    attempt = 0
+
+    while attempt < retries:
+        try:
+            encoded_vault_address = get_kubernetes_secret("keyvault-address", "address")
+            print(f"Encoded vault address: {encoded_vault_address}")
+            vault_address = decode_base64_twice(encoded_vault_address)
+            print(f"Decoded vault address: {vault_address}")
+            postgres_connection_string = get_keyvault_secret(vault_address, "postgres-connection-string")
+            print(f"Postgres connection string: {postgres_connection_string}")
+            with open("data.txt", "r") as file:
+                content = file.read()
+            write_to_db(postgres_connection_string, content)
+            print("Data written to database successfully.")
+            break
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            attempt += 1
+            if attempt < retries:
+                print(f"Retrying in {delay} seconds... (Attempt {attempt + 1}/{retries})")
+                time.sleep(delay)
+            else:
+                print("All retry attempts failed.")
 
 @app.route("/")
 def hello_world():
