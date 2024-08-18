@@ -17,13 +17,13 @@ jobs:
           channel-id: 'C07HE9MMNKC' # slack channel #notications
           payload: |
             {
-              "text": "GitHub Action failed",
+              "text": "Successful GitHub Action",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Production deployment check failed* :fire_engine:\n High error rate detected after deployment! Rolling back..."
+                    "text": "*Successful deployment* :white_check_mark:\n dikduk"
                   }
                 },
                 {
@@ -33,17 +33,9 @@ jobs:
                       "type": "button",
                       "text": {
                         "type": "plain_text",
-                        "text": ":github: Failed action"
+                        "text": ":github: Successful action"
                       },
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                    },
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": ":grafana: Grafana dashboard"
-                      },
-                      "url": "https://<your_organization>.grafana.net/d/my-app-dashboard?from=now-1h&to=now"
                     }
                   ]
                 }
@@ -81,14 +73,6 @@ jobs:
                         "text": ":github: Failed action"
                       },
                       "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                    },
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": ":grafana: Grafana dashboard"
-                      },
-                      "url": "https://<your_organization>.grafana.net/d/my-app-dashboard?from=now-1h&to=now"
                     }
                   ]
                 }
