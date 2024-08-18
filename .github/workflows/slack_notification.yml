@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: notify slack in case of success
-        id: slack
+        id: slack_success
         uses: slackapi/slack-github-action@v1.24.0
         # https://api.slack.com/apps/<your-app-id>/incoming-webhooks
         if: ${{ success() }}
@@ -54,7 +54,7 @@ jobs:
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
       - name: notify slack in case of failure
-        id: slack
+        id: slack_failure
         uses: slackapi/slack-github-action@v1.24.0
         # https://api.slack.com/apps/<your-app-id>/incoming-webhooks
         if: ${{ failure() }}
