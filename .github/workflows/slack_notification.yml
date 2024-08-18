@@ -1,0 +1,99 @@
+name: Slack notification
+
+on:
+  workflow_dispatch:
+
+jobs:
+  docker-build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: notify slack in case of success
+        id: slack
+        uses: slackapi/slack-github-action@v1.24.0
+        # https://api.slack.com/apps/<your-app-id>/incoming-webhooks
+        if: ${{ success() }}
+        with:
+          channel-id: 'C07HE9MMNKC' # slack channel #notications
+          payload: |
+            {
+              "text": "GitHub Action failed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Production deployment check failed* :fire_engine:\n High error rate detected after deployment! Rolling back..."
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": ":github: Failed action"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": ":grafana: Grafana dashboard"
+                      },
+                      "url": "https://<your_organization>.grafana.net/d/my-app-dashboard?from=now-1h&to=now"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+      - name: notify slack in case of failure
+        id: slack
+        uses: slackapi/slack-github-action@v1.24.0
+        # https://api.slack.com/apps/<your-app-id>/incoming-webhooks
+        if: ${{ failure() }}
+        with:
+          channel-id: 'C07HE9MMNKC' # slack channel #notications
+          payload: |
+            {
+              "text": "GitHub Action failed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Production deployment check failed* :fire_engine:\n High error rate detected after deployment! Rolling back..."
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": ":github: Failed action"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": ":grafana: Grafana dashboard"
+                      },
+                      "url": "https://<your_organization>.grafana.net/d/my-app-dashboard?from=now-1h&to=now"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATIONS_TOKEN }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
