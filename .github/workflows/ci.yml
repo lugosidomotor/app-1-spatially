@@ -51,6 +51,16 @@ jobs:
         file: ./Dockerfile
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ steps.vars.outputs.sha_short }}
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@0.20.0
+      with:
+        image-ref: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ steps.vars.outputs.sha_short }}
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
         
     - name: Update Kubernetes resources
       env:
