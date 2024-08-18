@@ -23,7 +23,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn", 
-                    "text": "*Successful deployment* :white_check_mark:\n dikduk ${{ github.actor	}} ${{ github.ref	}} ${{ github.repository }}"
+                    "text": "*Successful deployment* :white_check_mark:\n User: ${{ github.actor	}} Branch: ${{ github.ref	}} Repo: ${{ github.repository }}"
                   }
                 },
                 {
@@ -60,7 +60,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Deployment failed* :fire_engine:\n High error rate detected after deployment! Rolling back..."
+                    "text": "*Deployment failed* :fire_engine:\n User: ${{ github.actor	}} Branch: ${{ github.ref	}} Repo: ${{ github.repository }}"
                   }
                 },
                 {
