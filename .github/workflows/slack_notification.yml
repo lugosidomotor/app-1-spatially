@@ -23,7 +23,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn", 
-                    "text": "*Successful deployment* :white_check_mark:\n User: ${{ github.actor	}} Branch: ${{ github.ref	}} Repo: ${{ github.repository }}"
+                    "text": "*Successful deployment* :white_check_mark:\n **User:** ${{ github.actor	}} **Branch:** ${{ github.ref	}} **Repo:** ${{ github.repository }}"
                   }
                 },
                 {
